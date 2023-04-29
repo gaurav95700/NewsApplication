@@ -48,4 +48,9 @@ class TopHeadlineAdapter(
     fun addData(list: List<Article>) {
         articleList.addAll(list)
     }
+
+    fun updateData(list: List<Article>) {
+        articleList.clear()
+        articleList.addAll(list)
+    }
 }

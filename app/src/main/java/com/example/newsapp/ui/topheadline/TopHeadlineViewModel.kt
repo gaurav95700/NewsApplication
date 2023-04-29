@@ -2,10 +2,10 @@ package com.example.newsapp.ui.topheadline
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.newsapp.utils.AppConstant.COUNTRY
 import com.example.newsapp.data.model.Article
 import com.example.newsapp.data.repository.TopHeadlineRepository
 import com.example.newsapp.ui.base.UiState
+import com.example.newsapp.utils.AppConstant.COUNTRY
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -25,10 +25,48 @@ class TopHeadlineViewModel(private val topHeadlineRepository: TopHeadlineReposit
         viewModelScope.launch {
             topHeadlineRepository.getTopHeadlines(COUNTRY)
                 .catch { e ->
+                    getAllNews()
+                }.collect {
+                    deleteNews(it)
+                }
+        }
+    }
+
+
+    private fun deleteNews(articles: List<Article>) {
+        viewModelScope.launch {
+            topHeadlineRepository.deleteArticlesFromLocalDb()
+                .catch { e ->
+                    _uiState.value = UiState.Error(e.toString())
+                }.collect {
+                    insertNews(articles)
+                }
+        }
+    }
+
+
+    private fun insertNews(articles: List<Article>) {
+        viewModelScope.launch {
+            topHeadlineRepository.insertArticlesToLocalDb(articles)
+                .catch { e ->
+                    _uiState.value = UiState.Error(e.toString())
+                }.collect {
+                    getAllNews()
+                }
+        }
+    }
+
+
+    private fun getAllNews() {
+        viewModelScope.launch {
+            topHeadlineRepository.getTopHeadlinesFromLocalDb()
+                .catch { e ->
                     _uiState.value = UiState.Error(e.toString())
                 }.collect {
                     _uiState.value = UiState.Success(it)
                 }
         }
     }
+
+
 }

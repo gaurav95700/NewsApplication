@@ -1,10 +1,12 @@
 package com.example.newsapp.di.module
 
 import android.content.Context
+import androidx.room.Room
 import com.example.newsapp.ApplicationContext
 import com.example.newsapp.BaseUrl
-import com.example.newsapp.data.api.NetworkService
 import com.example.newsapp.NewsApplication
+import com.example.newsapp.data.api.NetworkService
+import com.example.newsapp.data.local.NewsDatabase
 import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
@@ -32,7 +34,7 @@ class ApplicationModule(private val application: NewsApplication) {
     @Singleton
     fun provideNetworkService(
         @BaseUrl baseUrl: String,
-        gsonConverterFactory: GsonConverterFactory
+        gsonConverterFactory: GsonConverterFactory,
     ): NetworkService {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
@@ -41,5 +43,13 @@ class ApplicationModule(private val application: NewsApplication) {
             .create(NetworkService::class.java)
     }
 
+
+    @Provides
+    @Singleton
+    fun provideRoomDb(@ApplicationContext appContext: Context): NewsDatabase =
+        Room.databaseBuilder(appContext, NewsDatabase::class.java, "newsapp.db")
+            .allowMainThreadQueries()
+            .fallbackToDestructiveMigration()
+            .build()
 
 }

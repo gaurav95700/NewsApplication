@@ -76,7 +76,7 @@ class TopHeadlineActivity : AppCompatActivity() {
     }
 
     private fun renderList(articleList: List<Article>) {
-        adapter.addData(articleList)
+        adapter.updateData(articleList)
         adapter.notifyDataSetChanged()
     }
 
